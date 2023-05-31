@@ -2,12 +2,12 @@
 
 pragma solidity ^0.8.0;
 
-import "./token/ERC721FEnumerable.sol";
+import "./token/ERC721BA.sol";
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 
-contract MyToken is ERC721F, Ownable {
+contract MyToken is ERC721BA, Ownable {
     using Strings for uint256;
 
     string private name_ = "FFR Project : ffff";
@@ -21,7 +21,7 @@ contract MyToken is ERC721F, Ownable {
     constructor(
         address preOwner_,
         uint256 maxSupply_
-    ) ERC721F(name_, symbol_, maxSupply_, preOwner_) {}
+    ) ERC721BA(name_, symbol_, maxSupply_, preOwner_) {}
 
     function singleMint() public {
         _mint(msg.sender);

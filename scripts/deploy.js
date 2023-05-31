@@ -18,8 +18,11 @@ async function main() {
     await MAH.create()
     for (i = 0; i < 10; i++) {
         console.log(`the address ${acclist[i].address}`)
-        const _posToBid = await MAH.findPos(i)
-        await MAH.connect(acclist[i]).createBid(_posToBid, { value: i })
+        let val = i * 1000
+        const _posToBid = await MAH.findPos(val)
+        await MAH.connect(acclist[i]).createBid(_posToBid, {
+            value: val.toString(),
+        })
     }
 
     const _len = await MAH.getLen()

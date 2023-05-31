@@ -27,7 +27,7 @@ import "./IERC2309.sol";
  * {ERC721Enumerable}.
  */
 
-contract ERC721F is Context, ERC165, IERC721, IERC721Metadata, IERC2309 {
+contract ERC721BA is Context, ERC165, IERC721, IERC721Metadata, IERC2309 {
     using Address for address;
     using Strings for uint256;
 
@@ -82,6 +82,8 @@ contract ERC721F is Context, ERC165, IERC721, IERC721Metadata, IERC2309 {
         //aslo child contract this event is available temperoraly
         emit ConsecutiveTransfer(0, _maxSupply - 1, address(0), _preOwner);
     }
+
+    // function
 
     /**
      *@dev my proposal
@@ -172,7 +174,7 @@ contract ERC721F is Context, ERC165, IERC721, IERC721Metadata, IERC2309 {
      * @dev See {IERC721-approve}.
      */
     function approve(address to, uint256 tokenId) public virtual override {
-        address owner = ERC721F.ownerOf(tokenId);
+        address owner = ERC721BA.ownerOf(tokenId);
         require(to != owner, "ERC721: approval to current owner");
 
         require(
@@ -330,7 +332,7 @@ contract ERC721F is Context, ERC165, IERC721, IERC721Metadata, IERC2309 {
         address spender,
         uint256 tokenId
     ) internal view virtual returns (bool) {
-        address owner = ERC721F.ownerOf(tokenId);
+        address owner = ERC721BA.ownerOf(tokenId);
         return (spender == owner ||
             isApprovedForAll(owner, spender) ||
             getApproved(tokenId) == spender);
@@ -350,63 +352,6 @@ contract ERC721F is Context, ERC165, IERC721, IERC721Metadata, IERC2309 {
      * Emits a {Transfer} event.
      */
     // sequentially
-    function _safeMint(address to) internal virtual returns (uint256) {
-        return _safeMint(to, "");
-    }
-
-    /**
-     * @dev Same as {xref-ERC721-_safeMint-address-uint256-}[`_safeMint`], with an additional `data` parameter which is
-     * forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
-     */
-    function _safeMint(
-        address to,
-        bytes memory data
-    ) internal virtual returns (uint256) {
-        uint256 tokenId = _mint(to);
-        require(
-            _checkOnERC721Received(address(0), to, tokenId, data),
-            "ERC721: transfer to non ERC721Receiver implementer"
-        );
-        return tokenId;
-    }
-
-    /**
-     * @dev Mints `tokenId` and transfers it to `to`.
-     *
-     * WARNING: Usage of this method is discouraged, use {_safeMint} whenever possible
-     *
-     * Requirements:
-     *
-     * - `tokenId` must not exist.
-     * - `to` cannot be the zero address.
-     *
-     * Emits a {Transfer} event.
-     */
-    function _mint(address to) internal virtual returns (uint256) {
-        require(to != address(0), "ERC721: mint to the zero address");
-        uint256 tokenId = maxSupply();
-        require(!_exists(tokenId), "ERC721: token already minted");
-        uint256 _tokenId = _maxSupply + 1;
-        _beforeTokenTransfer(address(0), to, tokenId);
-
-        // Check that tokenId was not minted by `_beforeTokenTransfer` hook
-        require(!_exists(tokenId), "ERC721: token already minted");
-
-        unchecked {
-            // Will not overflow unless all 2**256 token ids are minted to the same owner.
-            // Given that tokens are minted one by one, it is impossible in practice that
-            // this ever happens. Might change if we allow batch minting.
-            // The ERC fails to describe this case.
-            _balances[to] += 1;
-            _maxSupply += 1;
-        }
-
-        _owners[tokenId] = to;
-
-        emit Transfer(address(0), to, tokenId);
-
-        _afterTokenTransfer(address(0), to, tokenId);
-    }
 
     /**
      * @dev Transfers `tokenId` from `from` to `to`.
@@ -425,7 +370,7 @@ contract ERC721F is Context, ERC165, IERC721, IERC721Metadata, IERC2309 {
         uint256 tokenId
     ) internal virtual {
         require(
-            ERC721F.ownerOf(tokenId) == from,
+            ERC721BA.ownerOf(tokenId) == from,
             "ERC721: transfer from incorrect owner"
         );
         require(to != address(0), "ERC721: transfer to the zero address");
@@ -434,7 +379,7 @@ contract ERC721F is Context, ERC165, IERC721, IERC721Metadata, IERC2309 {
 
         // Check that tokenId was not transferred by `_beforeTokenTransfer` hook
         require(
-            ERC721F.ownerOf(tokenId) == from,
+            ERC721BA.ownerOf(tokenId) == from,
             "ERC721: transfer from incorrect owner"
         );
 
@@ -464,7 +409,7 @@ contract ERC721F is Context, ERC165, IERC721, IERC721Metadata, IERC2309 {
      */
     function _approve(address to, uint256 tokenId) internal virtual {
         _tokenApprovals[tokenId] = to;
-        emit Approval(ERC721F.ownerOf(tokenId), to, tokenId);
+        emit Approval(ERC721BA.ownerOf(tokenId), to, tokenId);
     }
 
     /**
