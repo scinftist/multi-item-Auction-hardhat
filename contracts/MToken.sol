@@ -18,14 +18,15 @@ contract MToken is ERC721BA, Ownable {
     //
     bool private notFinialized = true;
 
-    constructor(
-        address preOwner_,
-        uint256 maxSupply_
-    ) ERC721BA(name_, symbol_) {}
+    constructor() ERC721BA(name_, symbol_) {}
 
     // transferOwnerShip
 
     function mintBatch(address to, uint256 ammount) public onlyOwner {
         ERC721BA._mintBatch(to, ammount);
     }
+
+    // function owner() public view virtual override returns (address) {
+    //     return Ownable.owner();
+    // }
 }

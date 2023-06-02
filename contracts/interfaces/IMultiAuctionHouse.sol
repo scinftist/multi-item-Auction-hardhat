@@ -17,7 +17,7 @@
 
 pragma solidity ^0.8.6;
 
-interface INounsAuctionHouse {
+interface IMultiAuctionHouse {
     // struct Auction {
     //     // ID for the Noun (ERC721 token ID)
     //     uint256 nounId;
@@ -32,9 +32,17 @@ interface INounsAuctionHouse {
     //     // Whether or not the auction has been settled
     //     bool settled;
     // }
+    struct MAuction {
+        uint256 firstTokenId;
+        uint256 lastTokenId;
+        uint256 startTime;
+        uint256 endTime;
+        bool settled;
+    }
 
-    event AuctionCreated(
-        uint256 indexed nounId,
+    event MultiAuctionCreated(
+        uint256 indexed firstTokenId,
+        uint256 lastTokenId,
         uint256 startTime,
         uint256 endTime
     );
@@ -56,6 +64,8 @@ interface INounsAuctionHouse {
 
     event AuctionTimeBufferUpdated(uint256 timeBuffer);
 
+    event AuctionTurnDurationUpdated(uint256 turnDuration);
+
     event AuctionReservePriceUpdated(uint256 reservePrice);
 
     event AuctionMinBidIncrementPercentageUpdated(
@@ -72,10 +82,13 @@ interface INounsAuctionHouse {
 
     // function unpause() external;
 
-    // function setTimeBuffer(uint256 timeBuffer) external;
+    function setTimeBuffer(uint256 timeBuffer) external;
 
-    // function setReservePrice(uint256 reservePrice) external;
+    function setTurnDuration(uint256 trunDuration) external;
 
-    // function setMinBidIncrementPercentage(uint8 minBidIncrementPercentage)
-    //     external;
+    function setReservePrice(uint256 reservePrice) external;
+
+    function setMinBidIncrementPercentage(
+        uint8 minBidIncrementPercentage
+    ) external;
 }
