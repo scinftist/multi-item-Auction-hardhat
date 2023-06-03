@@ -35,9 +35,14 @@ contract ERC721BA is Context, ERC165, IERC721, IERC721Metadata, IERC2309 {
      *@dev my proposal
      */
     //maxSupply
-    uint256 private _maxSupply;
+    uint256 private _nextTokenId;
     //NFT owner
-    address private immutable _preOwner;
+    // address private immutable _preOwner;
+    struct OwnerRange {
+        address batchOwner;
+        uint96 lastToken;
+    }
+    OwnerRange[] private ownersRange;
 
     // Token name
     string private _name;
@@ -59,42 +64,53 @@ contract ERC721BA is Context, ERC165, IERC721, IERC721Metadata, IERC2309 {
 
     /**
      * @dev Initializes the contract by setting a `name` and a `symbol` to the token collection.
-     * Initializes the contract by setting 'preOwner' and 'maxSupply' to token collection.
      */
-    constructor(
-        string memory name_,
-        string memory symbol_,
-        uint256 maxSupply_,
-        address preOwner_
-    ) {
-        require(preOwner_ != address(0), "preOwner can NOT be address(0)");
-        require(0 < maxSupply_, "maxSupply_ should not be zero!");
+    constructor(string memory name_, string memory symbol_) {
         _name = name_;
         _symbol = symbol_;
-        //@dev my proposal
-        _maxSupply = maxSupply_;
-        _preOwner = preOwner_;
-        // blance of preOwner
-        _balances[_preOwner] = _maxSupply;
-        // emitiing token creation: read EIP-2309 -
-        //marketplaces have not implemnted EIP-2309 fully as of today
-        //so the event should be less than 5000
-        //aslo child contract this event is available temperoraly
-        emit ConsecutiveTransfer(0, _maxSupply - 1, address(0), _preOwner);
     }
 
-    // function
+    function nextTokenId() public view returns (uint256) {
+        return _nextTokenId;
+    }
+
+    function _mintBatch(address _to, uint256 _ammount) internal {
+        require(_ammount <= 5000, "max batch is 5000");
+        require(_ammount > 0, "zero amount is not acceptable");
+        _balances[_to] += _ammount;
+        _nextTokenId += _ammount;
+        uint256 len = ownersRange.length;
+        if (len > 0 && ownersRange[len - 1].batchOwner == _to) {
+            ownersRange[len - 1].lastToken += uint96(_ammount);
+        } else {
+            ownersRange.push(
+                OwnerRange(_to, uint96(_nextTokenId + _ammount - 1))
+            );
+        }
+        emit ConsecutiveTransfer(
+            _nextTokenId,
+            _nextTokenId + _ammount - 1,
+            address(0),
+            _to
+        );
+        //     ConsecutiveTransfer(
+        //     uint256 indexed fromTokenId,
+        //     uint256 toTokenId,
+        //     address indexed fromAddress,
+        //     address indexed toAddress
+        // );
+    }
 
     /**
      *@dev my proposal
      */
     function maxSupply() public view returns (uint256) {
-        return _maxSupply;
+        return _nextTokenId;
     }
 
-    function preOwner() public view returns (address) {
-        return _preOwner;
-    }
+    // function preOwner() public view returns (address) {
+    //     return _preOwner;
+    // }
 
     /**
      * @dev See {IERC165-supportsInterface}.
@@ -303,10 +319,22 @@ contract ERC721BA is Context, ERC165, IERC721, IERC721Metadata, IERC2309 {
      */
     function _ownerOf(uint256 tokenId) internal view virtual returns (address) {
         address owner = _owners[tokenId];
-        if (owner == address(0) && (tokenId < _maxSupply)) {
-            return _preOwner;
+        if (owner == address(0) && (tokenId < _nextTokenId)) {
+            return _batchOwner(tokenId);
         }
         return owner;
+    }
+
+    function _batchOwner(uint256 tokenId) internal view returns (address) {
+        uint256 len = ownersRange.length;
+        if (tokenId >= _nextTokenId) return address(0);
+
+        for (uint256 i = 1; i <= len; i++) {
+            if (ownersRange[len - i].lastToken >= tokenId) {
+                return ownersRange[len - i].batchOwner;
+            }
+        }
+        return address(0);
     }
 
     /**

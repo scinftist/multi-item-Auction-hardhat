@@ -51,6 +51,7 @@ interface IMultiAuctionHouse {
         uint256 indexed nounId,
         address sender,
         uint256 value,
+        uint256 auctionNumber,
         bool extended
     );
 
