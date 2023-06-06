@@ -2,12 +2,13 @@
 
 pragma solidity ^0.8.0;
 
-import "./token/ERC721BA.sol";
+import "./token/ERC721BB.sol";
+import "./interfaces/IMToken.sol";
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 
-contract MToken is ERC721BA, Ownable {
+contract MToken is ERC721BB, Ownable {
     using Strings for uint256;
 
     string private name_ = "MAH Project : ffff";
@@ -18,12 +19,12 @@ contract MToken is ERC721BA, Ownable {
     //
     bool private notFinialized = true;
 
-    constructor() ERC721BA(name_, symbol_) {}
+    constructor() ERC721(name_, symbol_) {}
 
     // transferOwnerShip
 
     function mintBatch(address to, uint256 ammount) public onlyOwner {
-        ERC721BA._mintBatch(to, ammount);
+        ERC721BB._mintBatch(to, ammount);
     }
 
     // function owner() public view virtual override returns (address) {

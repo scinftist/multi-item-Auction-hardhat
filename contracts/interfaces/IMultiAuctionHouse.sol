@@ -18,20 +18,6 @@
 pragma solidity ^0.8.6;
 
 interface IMultiAuctionHouse {
-    // struct Auction {
-    //     // ID for the Noun (ERC721 token ID)
-    //     uint256 nounId;
-    //     // The current highest bid amount
-    //     uint256 amount;
-    //     // The time that the auction started
-    //     uint256 startTime;
-    //     // The time that the auction is scheduled to end
-    //     uint256 endTime;
-    //     // The address of the current highest bid
-    //     address payable bidder;
-    //     // Whether or not the auction has been settled
-    //     bool settled;
-    // }
     struct MAuction {
         uint256 firstTokenId;
         uint256 lastTokenId;
@@ -55,7 +41,7 @@ interface IMultiAuctionHouse {
         bool extended
     );
 
-    event AuctionExtended(uint256 indexed nounId, uint256 endTime);
+    event AuctionExtended(uint256 indexed auctionNumber, uint256 endTime);
 
     event AuctionSettled(
         uint256 indexed nounId,

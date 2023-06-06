@@ -38,7 +38,7 @@ library DoubleLinkedLibrary {
     // }
     // event
 
-    function init0(DList storage DL) internal {
+    function initDLL(DList storage DL) internal {
         unchecked {
             // uint256 end = uint256(0) - 1;
             uint256 end = type(uint256).max;
@@ -53,7 +53,7 @@ library DoubleLinkedLibrary {
         // nodes[end] = node(0,0,)
     }
 
-    function setSort(
+    function setSortDLL(
         DList storage DL,
         uint256 _pos,
         uint256 data,
@@ -62,7 +62,7 @@ library DoubleLinkedLibrary {
         setAfterMid(DL, _pos, data, bidder);
     }
 
-    function posValidator(
+    function posValidatorDLL(
         DList storage DL,
         uint256 _pos,
         uint256 data
@@ -79,7 +79,7 @@ library DoubleLinkedLibrary {
         return false;
     }
 
-    function findPos(
+    function findPosDLL(
         DList storage DL,
         uint256 data
     ) internal view returns (uint256) {
@@ -88,7 +88,7 @@ library DoubleLinkedLibrary {
         //     return 0;
         // }
         for (uint256 i = 0; i < DL.len + 1; i++) {
-            if (posValidator(DL, pos, data)) {
+            if (posValidatorDLL(DL, pos, data)) {
                 return pos;
             }
             pos = DL.nodes[pos].next;
@@ -97,22 +97,22 @@ library DoubleLinkedLibrary {
         // return (0);
     }
 
-    function index0(DList storage DL, uint256 pos) internal {
+    function index0DLL(DList storage DL, uint256 pos) internal {
         require(DL.finished, "n");
-        require(DL.nodeIndex[pos] == 0); //if indexed return index?
-        uint256 _prevNode = getPrev(DL, pos);
-        require(_prevNode != 0);
-        uint256 posNext = getNext(DL, pos);
+        require(DL.nodeIndex[pos] == 0, "n1"); //if indexed return index?
+        uint256 _prevNode = getPrevDLL(DL, pos);
+        require(_prevNode != 0, "n2");
+        uint256 posNext = getNextDLL(DL, pos);
         // uint256 starting = getHead(DL);
         uint256 starting = DL.lastIndex;
         uint256 next;
         // uint256 lastIndex;
         // uint256 lastIndexedPos;
-        next = getNext(DL, starting);
+        next = getNextDLL(DL, starting);
         for (;;) {
             DL.nodeIndex[next] = DL.nodeIndex[starting] + 1;
             starting = next;
-            next = getNext(DL, starting);
+            next = getNextDLL(DL, starting);
             if (next == 0 || next == posNext) {
                 DL.lastIndex = pos;
                 break;
@@ -121,15 +121,15 @@ library DoubleLinkedLibrary {
         //return DL.nodeIndex[pos];?
     }
 
-    function index(DList storage DL, uint256 pos) internal {
+    function indexDLL(DList storage DL, uint256 pos) internal {
         require(DL.nodeIndex[pos] == 0);
-        require(getPrev(DL, pos) != 0);
+        require(getPrevDLL(DL, pos) != 0);
         uint256 starting = pos;
         uint256 lastIndex;
         uint256 lastIndexedPos;
         for (;;) {
-            lastIndexedPos = getPrev(DL, starting);
-            lastIndex = getIndex(DL, lastIndexedPos);
+            lastIndexedPos = getPrevDLL(DL, starting);
+            lastIndex = getIndexDLL(DL, lastIndexedPos);
             if (lastIndex != 0 || lastIndexedPos == 1) {
                 break;
             } else {
@@ -138,18 +138,18 @@ library DoubleLinkedLibrary {
         }
         uint256 nextPos;
         for (;;) {
-            nextPos = getNext(DL, lastIndexedPos);
-            indexThePos(DL, nextPos);
+            nextPos = getNextDLL(DL, lastIndexedPos);
+            indexThePosDLL(DL, nextPos);
             if (nextPos == pos) {
                 break;
             }
         }
     }
 
-    function indexThePos(DList storage DL, uint256 pos) internal {
+    function indexThePosDLL(DList storage DL, uint256 pos) internal {
         require(DL.nodeIndex[pos] == 0);
         require(pos > 1, "not in list");
-        uint256 _prev = getPrev(DL, pos);
+        uint256 _prev = getPrevDLL(DL, pos);
         if (_prev == 1) {
             DL.nodeIndex[pos] = 1;
         }
@@ -161,7 +161,7 @@ library DoubleLinkedLibrary {
         }
     }
 
-    function getIndex(
+    function getIndexDLL(
         DList storage DL,
         uint256 pos
     ) internal view returns (uint256) {
@@ -171,55 +171,55 @@ library DoubleLinkedLibrary {
         // not indexed yet if nodeIndex revert()
     }
 
-    function finish(DList storage DL) internal {
+    function finishDLL(DList storage DL) internal {
         DL.finished = true;
     }
 
-    function isFinished(DList storage DL) internal view returns (bool) {
+    function isFinishedDLL(DList storage DL) internal view returns (bool) {
         return DL.finished;
     }
 
-    function getCounter(DList storage DL) internal view returns (uint256) {
+    function getCounterDLL(DList storage DL) internal view returns (uint256) {
         return DL.nextPointer;
     }
 
-    function getData(
+    function getDataDLL(
         DList storage DL,
         uint256 pos
     ) internal view returns (uint256) {
         return DL.nodes[pos].data;
     }
 
-    function getBidder(
+    function getBidderDLL(
         DList storage DL,
         uint256 pos
     ) internal view returns (address) {
         return DL.nodes[pos].bidder;
     }
 
-    function getPrev(
+    function getPrevDLL(
         DList storage DL,
         uint256 pos
     ) internal view returns (uint256) {
         return DL.nodes[pos].prev;
     }
 
-    function getNext(
+    function getNextDLL(
         DList storage DL,
         uint256 pos
     ) internal view returns (uint256) {
         return DL.nodes[pos].next;
     }
 
-    function getLen(DList storage DL) internal view returns (uint256) {
+    function getLenDLL(DList storage DL) internal view returns (uint256) {
         return DL.len;
     }
 
-    function getHead(DList storage DL) internal view returns (uint256) {
+    function getHeadDLL(DList storage DL) internal view returns (uint256) {
         return DL.head;
     }
 
-    function getTail(DList storage DL) internal view returns (uint256) {
+    function getTailDLL(DList storage DL) internal view returns (uint256) {
         return DL.tail;
     }
 
@@ -259,7 +259,7 @@ library DoubleLinkedLibrary {
         return DL.nextPointer - 1;
     }
 
-    function removeThis(DList storage DL, uint256 _pos) internal {
+    function removeThisDLL(DList storage DL, uint256 _pos) internal {
         require(!DL.finished, "it's finished");
         node memory _node = DL.nodes[_pos];
         require(_node.prev != 0, "not in array");

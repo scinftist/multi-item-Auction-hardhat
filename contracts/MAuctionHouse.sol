@@ -36,7 +36,7 @@ contract MultiAuctionHouse is IMultiAuctionHouse, Ownable {
         private biddersInAuctionNumber;
     mapping(uint256 => MAuction) private mAuctions;
 
-    uint256 public auctionNumber;
+    uint256 public latestAuctionNumber;
 
     uint256 public timeBuffer;
     uint256 public reservePrice;
@@ -106,87 +106,121 @@ contract MultiAuctionHouse is IMultiAuctionHouse, Ownable {
     //--------------------BidderList Init-----------
 
     function bidderListInit() private {
-        auctionNumber++;
+        latestAuctionNumber++;
 
-        biddersInAuctionNumber[auctionNumber].init0();
+        biddersInAuctionNumber[latestAuctionNumber].initDLL();
     }
 
     //------------ BidderList view
-    function getCounter() public view returns (uint256) {
-        return biddersInAuctionNumber[auctionNumber].getCounter();
+    function getCounter(uint256 _auctionNumber) public view returns (uint256) {
+        return biddersInAuctionNumber[_auctionNumber].getCounterDLL();
     }
 
-    function getData(uint256 pos) public view returns (uint256) {
-        return biddersInAuctionNumber[auctionNumber].getData(pos);
+    function getData(
+        uint256 _auctionNumber,
+        uint256 pos
+    ) public view returns (uint256) {
+        return biddersInAuctionNumber[_auctionNumber].getDataDLL(pos);
     }
 
-    function getBidder(uint256 pos) public view returns (address) {
-        return biddersInAuctionNumber[auctionNumber].getBidder(pos);
+    function getBidder(
+        uint256 _auctionNumber,
+        uint256 pos
+    ) public view returns (address) {
+        return biddersInAuctionNumber[_auctionNumber].getBidderDLL(pos);
     }
 
-    function getIndex(uint256 pos) public view returns (uint256) {
-        return biddersInAuctionNumber[auctionNumber].getIndex(pos);
+    function getIndex(
+        uint256 _auctionNumber,
+        uint256 pos
+    ) public view returns (uint256) {
+        return biddersInAuctionNumber[_auctionNumber].getIndexDLL(pos);
     }
 
-    function getPrev(uint256 pos) public view returns (uint256) {
-        return biddersInAuctionNumber[auctionNumber].getPrev(pos);
+    function getPrev(
+        uint256 _auctionNumber,
+        uint256 pos
+    ) public view returns (uint256) {
+        return biddersInAuctionNumber[_auctionNumber].getPrevDLL(pos);
     }
 
-    function getNext(uint256 pos) public view returns (uint256) {
-        return biddersInAuctionNumber[auctionNumber].getNext(pos);
+    function getNext(
+        uint256 _auctionNumber,
+        uint256 pos
+    ) public view returns (uint256) {
+        return biddersInAuctionNumber[_auctionNumber].getNextDLL(pos);
     }
 
-    function getLen() public view returns (uint256) {
-        return biddersInAuctionNumber[auctionNumber].getLen();
+    function getLen(uint256 _auctionNumber) public view returns (uint256) {
+        return biddersInAuctionNumber[_auctionNumber].getLenDLL();
     }
 
-    function getHead() public view returns (uint256) {
-        return biddersInAuctionNumber[auctionNumber].getHead();
+    function getHead(uint256 _auctionNumber) public view returns (uint256) {
+        return biddersInAuctionNumber[_auctionNumber].getHeadDLL();
     }
 
-    function getTail() public view returns (uint256) {
-        return biddersInAuctionNumber[auctionNumber].getTail();
+    function getTail(uint256 _auctionNumber) public view returns (uint256) {
+        return biddersInAuctionNumber[_auctionNumber].getTailDLL();
     }
 
     function getCurrentAuctionNumber() public view returns (uint256) {
-        return auctionNumber;
+        return latestAuctionNumber;
     }
 
+    //
     function posValidator(
+        uint256 _auctionNumber,
         uint256 _pos,
         uint256 data
     ) public view returns (bool) {
-        return biddersInAuctionNumber[auctionNumber].posValidator(_pos, data);
-    }
-
-    function findPos(uint256 data) public view returns (uint256) {
-        return biddersInAuctionNumber[auctionNumber].findPos(data);
-    }
-
-    function removeThis(uint256 _pos) public {
-        biddersInAuctionNumber[auctionNumber].removeThis(_pos);
-    }
-
-    function setSort(uint256 _pos, uint256 data) public {
-        biddersInAuctionNumber[auctionNumber].setSort(_pos, data, msg.sender);
-    }
-
-    function numberOfItem() public view returns (uint256) {
         return
-            (mAuctions[auctionNumber].lastTokenId -
-                mAuctions[auctionNumber].firstTokenId) + 1;
+            biddersInAuctionNumber[_auctionNumber].posValidatorDLL(_pos, data);
     }
 
-    function isBidable(uint256 val) public view returns (bool) {
+    function findPos(
+        uint256 _auctionNumber,
+        uint256 data
+    ) public view returns (uint256) {
+        return biddersInAuctionNumber[_auctionNumber].findPosDLL(data);
+    }
+
+    function removeThis(uint256 _auctionNumber, uint256 _pos) internal {
+        biddersInAuctionNumber[_auctionNumber].removeThisDLL(_pos);
+    }
+
+    function setSort(
+        uint256 _auctionNumber,
+        uint256 _pos,
+        uint256 data
+    ) public {
+        biddersInAuctionNumber[_auctionNumber].setSortDLL(
+            _pos,
+            data,
+            msg.sender
+        );
+    }
+
+    function numberOfItem(
+        uint256 _auctionNumber
+    ) public view returns (uint256) {
+        return
+            (mAuctions[_auctionNumber].lastTokenId -
+                mAuctions[_auctionNumber].firstTokenId) + 1;
+    }
+
+    function isBidable(
+        uint256 auctionNumber,
+        uint256 val
+    ) public view returns (bool) {
         if (val < reservePrice) {
             return false;
         }
 
-        if (getLen() < numberOfItem()) {
+        if (getLen(auctionNumber) < numberOfItem(auctionNumber)) {
             return true;
         } else {
-            uint256 tailPointer = getTail();
-            uint256 tailValue = getData(tailPointer);
+            uint256 tailPointer = getTail(auctionNumber);
+            uint256 tailValue = getData(auctionNumber, tailPointer);
             // address tailAddress = getBidder(tailPointer);
             if (
                 val >
@@ -206,45 +240,52 @@ contract MultiAuctionHouse is IMultiAuctionHouse, Ownable {
     //         endTime: endTime,
     //         settled: false
     //     });
-    function getStartTime() public view returns (uint256) {
-        return mAuctions[auctionNumber].startTime;
+    function getStartTime(
+        uint256 _auctionNumber
+    ) public view returns (uint256) {
+        return mAuctions[_auctionNumber].startTime;
     }
 
-    function getEndTime() public view returns (uint256) {
-        return mAuctions[auctionNumber].endTime;
+    function getEndTime(uint256 _auctionNumber) public view returns (uint256) {
+        return mAuctions[_auctionNumber].endTime;
     }
 
-    function getSettled() public view returns (bool) {
-        return mAuctions[auctionNumber].settled;
+    function getSettled(uint256 _auctionNumber) public view returns (bool) {
+        return mAuctions[_auctionNumber].settled;
     }
 
     ///---------finish--------
-    function finishIt() public {
+    function finishIt(uint256 _auctionNumber) public {
         require(
-            !biddersInAuctionNumber[auctionNumber].isFinished(),
+            !biddersInAuctionNumber[_auctionNumber].isFinishedDLL(),
             "finishing err0"
         );
-        biddersInAuctionNumber[auctionNumber].finish();
+        biddersInAuctionNumber[_auctionNumber].finishDLL();
         // biddersInAuctionNumber[auctionNumber].index0(
-        //     biddersInAuctionNumber[auctionNumber].getTail()
+        //     biddersInAuctionNumber[auctionNumber].getTail(auctionNumber)
         // );
     }
 
     // function getToken(uint256 tokenId, uint256 _pos, uint256 _auctionNumber) public {
-    function getToken(uint256 tokenId, uint256 _pos) public {
+    function getToken(
+        uint256 _auctionNumber,
+        uint256 tokenId,
+        uint256 _pos
+    ) public {
         //getAuction
         // require(tokenId <=lastTokenId)
         uint256 _index;
-        MAuction memory _mauction = mAuctions[auctionNumber];
+        MAuction memory _mauction = mAuctions[_auctionNumber];
 
-        _index = biddersInAuctionNumber[auctionNumber].getIndex(_pos);
+        _index = getIndex(_auctionNumber, _pos);
         if (_index == 0) {
-            biddersInAuctionNumber[auctionNumber].index0(_pos);
+            biddersInAuctionNumber[_auctionNumber].index0DLL(_pos);
         }
-        _index = biddersInAuctionNumber[auctionNumber].getIndex(_pos);
+        _index = getIndex(_auctionNumber, _pos);
         require(_index > 0, "remove it ");
         require(
-            msg.sender == biddersInAuctionNumber[auctionNumber].getBidder(_pos),
+            msg.sender ==
+                biddersInAuctionNumber[_auctionNumber].getBidderDLL(_pos),
             "you are not the owner of the bid"
         );
 
@@ -339,7 +380,7 @@ contract MultiAuctionHouse is IMultiAuctionHouse, Ownable {
 
     /////////////Bidding
 
-    function createBid(uint256 pos) external payable {
+    function createBid(uint256 auctionNumber, uint256 pos) external payable {
         // INounsAuctionHouse.Auction memory _auction = auction;
 
         require(
@@ -348,14 +389,14 @@ contract MultiAuctionHouse is IMultiAuctionHouse, Ownable {
         );
         require(msg.value >= reservePrice, "Must send at least reservePrice");
         //------
-        if (getLen() < numberOfItem()) {
-            setSort(pos, msg.value);
+        if (getLen(auctionNumber) < numberOfItem(auctionNumber)) {
+            setSort(auctionNumber, pos, msg.value);
             // whiteListed[msg.sender];
             // emit val(msg.value);
         } else {
-            uint256 tailPointer = getTail();
-            uint256 tailValue = getData(tailPointer);
-            address tailAddress = getBidder(tailPointer);
+            uint256 tailPointer = getTail(auctionNumber);
+            uint256 tailValue = getData(auctionNumber, tailPointer);
+            address tailAddress = getBidder(auctionNumber, tailPointer);
             // require(msg.value >= tailValue, "?!?");
             require(
                 msg.value >
@@ -365,8 +406,8 @@ contract MultiAuctionHouse is IMultiAuctionHouse, Ownable {
             // emit val(msg.value);
             // emit val(tailValue);
 
-            setSort(pos, msg.value);
-            removeThis(tailPointer);
+            setSort(auctionNumber, pos, msg.value);
+            removeThis(auctionNumber, tailPointer);
             _safeTransferETHWithFallback(tailAddress, tailValue);
         }
     }
@@ -379,7 +420,7 @@ contract MultiAuctionHouse is IMultiAuctionHouse, Ownable {
         uint256 _nextTokenId = MToken.nextTokenId();
         MToken.mintBatch(address(this), numberOfItemInAuction);
         bidderListInit();
-        mAuctions[auctionNumber] = MAuction({
+        mAuctions[latestAuctionNumber] = MAuction({
             firstTokenId: _nextTokenId,
             lastTokenId: _nextTokenId + numberOfItemInAuction - 1,
             startTime: startTime,
