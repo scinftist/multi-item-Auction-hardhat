@@ -1,13 +1,8 @@
-# Sample Hardhat Project
+# Multi Token Auctions: Simultaneous Sales
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+this a new auction contract that provides a way to auction multiple Item at onece, the current state of the project is unfinish and using it is not recomended.
 
-Try running some of the following tasks:
+-   DoubleLinkedLibrary.sol is a linked list library that maintains the sorted state of the list, and have an indexing function for the finished state.
+-   MToken.sol is a token that has batch minting capability after deployment.
 
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.js
-```
+*   MAcutionHouse.sol is the Auction library that can Auction n token in togethor and bidders bid for getting better possition "turn duration" that determines who get to choose from a pool of token in Auction
